@@ -1,19 +1,13 @@
 /**
- * For each option:
- *   - create a 'describe' block
- *   - call 'set'
- *   - executes tests()
- * @param options an array of options where each option is an object with the properties
- *   - desc: the description the scenario (the title of the describe block)
- *   - set: a function that instantiates the scenario
+ * Expand all scenarios into BDD style blocks
+ * @param scenarios an array of scenarios to test
  */
-module.exports = (options) => {
-    options.map(option => {
-        describe(option.desc, () => {
-            beforeEach(() => option.set());
+module.exports = scenarios => {
+    scenarios.map(scenario => {
+        describe(scenario.desc, () => {
+            beforeEach(() => scenario.set());
 
-            option.tests();
+            scenario.tests();
         });
-    });
+    })
 };
-

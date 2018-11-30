@@ -1,15 +1,28 @@
+const Scenario = require('../scenario');
+const TypeChecker = require('./typeChecker');
+
 /**
- * A set of tests to confirm behaviour when the specific property is or is not a positive number
- * @param propName the name of the property under test
- * @param propSetter a function that can be used to set the property
- * @param validTests tests to run when the property is a positive number
- * @param invalidTests tests to run when the property is not a non-empty-string
+ * A type checker for positive numbers
  */
-module.exports = (propName, propSetter, validTests, invalidTests) => [
-    {desc: `${propName} is a string`, set: () => propSetter('Arbitrary string'), tests: invalidTests},
-    {desc: `${propName} is negative number`, set: () => propSetter(-1), tests: invalidTests},
-    {desc: `${propName} is zero`, set: () => propSetter(0), tests: invalidTests},
-    {desc: `${propName} is one`, set: () => propSetter(1), tests: validTests},
-    {desc: `${propName} is another positive integer`, set: () => propSetter(2), tests: validTests},
-    {desc: `${propName} is a positive fraction`, set: () => propSetter(2.6), tests: validTests}
-];
+class PositiveNumber extends TypeChecker {
+
+    /**
+     * @param name the name of the property under test
+     * @param setter a function that can be used to set the property
+     * @param validTests tests to run when the property is a positive number
+     * @param invalidTests tests to run when the property not a positive number
+     */
+    constructor(name, setter, validTests, invalidTests) {
+        super(name, setter, validTests, invalidTests);
+        this.scenarios = [
+            new Scenario(`${name} is a string`, () => setter('Arbitrary string'), invalidTests),
+            new Scenario(`${name} is a negative number`, () => setter(-1), invalidTests),
+            new Scenario(`${name} is zero`, () => setter(0), invalidTests),
+            new Scenario(`${name} is one`, () => setter(1), validTests),
+            new Scenario(`${name} is another positive integer`, () => setter(2), validTests),
+            new Scenario(`${name} is a positive fraction`, () => setter(2.6), validTests)
+        ]
+    }
+}
+
+module.exports = PositiveNumber;
