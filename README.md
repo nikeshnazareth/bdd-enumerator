@@ -43,7 +43,7 @@ const options = Enumerator.options.type.nonEmptyString(
   
 Enumerate over the options
 ```javascript
-  Enumerator.enumerate(options); // creates BDD test blocks in place
+Enumerator.enumerate(options); // creates BDD test blocks in place
 ```
 
 ### Predefined Options
@@ -70,4 +70,36 @@ const options = Enumerator.options.type.optional(
   () => { ... }, // any tests that should be run when myString is a non-empty string OR UNDEFINED
   () => { ... } // any tests that should be run when myString is not a non-empty string
 )
+```
+
+#### Composition
+* `options.composition.mutex`
+
+Produces options corresponding to all combinations of two properties with the additional 
+constraint that the situation is invalid when both properties are defined.
+
+For example
+```javascript
+const Enumerator = require('bdd.enumerator.module');
+let myPropA, myPropB;
+const propA = {
+    optionGeneratorFn: Enumerator.options.type.positiveNumber,
+    name: 'myPropA',
+    setter: (val) => {
+        myPropA = val
+    } 
+};
+const propB = {
+    optionGeneratorFn: Enumerator.options.type.positiveNumber,
+    name: 'myPropB',
+    setter: (val) => {
+        myPropB = val
+    } 
+};
+const options = Enumerator.options.composition.mutex(
+    propA,
+    propB,
+    () => { ... }, // any tests that should be run when either A or B is invalid, or both are defined
+    () => { ... } // any tests that should be run when the defined property is valid, or neither are defined
+);
 ```
