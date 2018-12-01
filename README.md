@@ -39,6 +39,7 @@ Specify which property should be modified when iterating through the scenarios.
 Note that the base object is identified through a function, because it may not be defined before the test begins.
 ```javascript
 const baseObj; // the object to be modified. Each test will set baseObj.myProp to the scenario value
+// for deeper properties, describe the path using dot notation (eg. firstlevel.intermediate.myProp)
 const myProp = new Enumerator.property('myProp', () => baseObj, myStringScenarios);
 ```
   

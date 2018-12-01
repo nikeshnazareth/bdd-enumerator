@@ -15,8 +15,15 @@ class Enumerate {
                 describe(scenario.desc, () => {
                     beforeEach(() => {
                         if (scenario.value !== undefined) {
-                            const obj = property.baseObjFn();
-                            obj[property.name] = scenario.value;
+                            let obj = property.baseObjFn();
+                            const path = property.name.split('.');
+                            while (path.length > 1) {
+                                const intermediate = path.shift();
+                                if (obj[intermediate] === undefined)
+                                    obj[intermediate] = {};
+                                obj = obj[intermediate];
+                            }
+                            obj[path] = scenario.value;
                         }
                     });
 
