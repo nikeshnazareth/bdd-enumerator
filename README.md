@@ -26,7 +26,7 @@ const Enumerator = require ('bdd-enumerator/module');
 Create an array of `Scenario` classes with the properties
 * `desc`: a description of the use case (the title of the describe block)
 * `set`: a function that produces the situation under test
-* `tests`: the tests to run under this situation
+* `valid`: whether or not the scenario is valid ( ie. which set of tests to run )
 
 In many cases, you can generate scenarios using a predefined function.
 
@@ -36,14 +36,15 @@ let myString;
 const myStringScenarios = Enumerator.property.type.nonEmptyString(
   'myString', // the name of the property
   (val) => { myString = val }, // a setter function 
-  () => { ... }, // any tests that should be run when myString is a non-empty string
-  () => { ... } // any tests that should be run when myString is not a non-empty string
 );
 ```
   
 Enumerate over the scenarios
 ```javascript
-Enumerator.enumerate(myStringScenarios); // creates BDD test blocks in place
+// create BDD test blocks in place
+const validTestsFn = () => { ... }; // any tests to be run in valid scenarios
+const invalidTestsFn = () => { ... }; // any tests to be run in invalid scenarios
+Enumerator.enumerate(myStringScenarios, validTestsFn, invalidTestsFn); 
 ```
 
 ### Predefined Scenarios
@@ -56,25 +57,25 @@ Enumerator.enumerate(myStringScenarios); // creates BDD test blocks in place
 * `property.presence.required`
 * `property.presence.optional`
 
-These are wrappers around properties to create a new test for when the property is undefined.
+These are wrappers around scenarios to create a new scenario for when the property is undefined.
 
 For example,
 ```javascript
 // using the myStringScenarios object from the Usage example
 const augmentedScenarios = Enumerator.property.presence.required(myStringScenarios); 
-Enumerator.enumerate(augmentedScenarios);
+Enumerator.enumerate(augmentedScenarios, validTestsFn, invalidTestsFn);
 ```
 
 #### Composition
 * `property.composition.mutuallyExclusive`
 
-Produces scenarios corresponding to all combinations of two properties using a new set of tests
-(ignoring the individual tests) when both properties are defined
+Produces scenarios corresponding to all combinations of two properties 
+where the scenario is invalid if both properties are defined
 
 For example
 ```javascript
 const foo = Enumerator.property.type.nonEmptyString( ... );
 const bar = Enumerator.property.type.positiveNumber( ... );
-const testsToRunWhenBothPropsAreDefined = () => { ... };
-const combinedScenarios = Enumerator.property.composition.mutuallyExclusive(foo, bar, testsToRunWhenBothPropsAreDefined);
+const combinedScenarios = Enumerator.property.composition.mutuallyExclusive(foo, bar);
+Enumerator.enumerate(combinedScenarios, validTestsFn, invalidTestsFn);
 ```

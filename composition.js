@@ -8,19 +8,18 @@ class Composition {
     /**
      * @param propertyA any property where the property is defined in all scenarios
      * @param propertyB any property where the property is defined in all scenarios
-     * @param bothDefinedTests the tests to run when both properties are defined
      * @returns an array of scenarios corresponding to the combinations:
      *   - only propertyA is defined ( equivalent to propertyA.scenarios with a modified description )
      *   - only propertyB is defined ( equivalent to propertyB.scenarios with a modified description )
-     *   - both properties are defined ( run the specified test )
+     *   - both properties are defined ( invalid )
      */
-    static mutuallyExclusive(propertyA, propertyB, bothDefinedTests) {
+    static mutuallyExclusive(propertyA, propertyB) {
         const A_defined_B_undefined = propertyB.scenarios.map(scenario =>
-            new Scenario(`${propertyA.name} is undefined; ${scenario.desc}`, scenario.set, scenario.tests)
+            new Scenario(`${propertyA.name} is undefined; ${scenario.desc}`, scenario.set, scenario.valid)
         );
 
         const B_defined_A_undefined = propertyA.scenarios.map(scenario =>
-            new Scenario(` ${scenario.desc}; ${propertyB.name} is undefined`, scenario.set, scenario.tests)
+            new Scenario(` ${scenario.desc}; ${propertyB.name} is undefined`, scenario.set, scenario.valid)
         );
 
         const both_defined = propertyA.scenarios.map(A_scenario =>
@@ -30,7 +29,7 @@ class Composition {
                     A_scenario.set();
                     B_scenario.set();
                 },
-                bothDefinedTests
+                false
             ))
         ).reduce((L0, L1) => L0.concat(L1));
 
