@@ -6,24 +6,24 @@ const Scenario = require('./scenario');
 class Presence {
 
     /**
-     * Add the scenario where the property is undefined (and valid)
-     * @param property the property under test
+     * Add the scenario where the property is undefined (and valid) and return the combined array
+     * @param scenarios any array of scenarios
      */
-    static optional(property) {
+    static optional(scenarios) {
         return [
-            new Scenario(`${property.name} is undefined`, () => null, true),
-            ...property.scenarios
+            new Scenario('is undefined', undefined, true),
+            ...scenarios
         ];
     }
 
     /**
-     * Add the scenario where the property is undefined (and invalid)
-     * @param property the property under test
+     * Add the scenario where the property is undefined (and invalid) and return the combined array
+     * @param scenarios any array of scenarios
      */
-    static required(property) {
+    static required(scenarios) {
         return [
-            new Scenario(`${property.name} is undefined`, () => null, false),
-            ...property.scenarios
+            new Scenario('is undefined', undefined, false),
+            ...scenarios
         ];
     }
 }

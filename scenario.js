@@ -5,13 +5,13 @@ class Scenario {
 
     /**
      * @param desc a description of the scenario
-     * @param setFn a function that produces the desired scenario
+     * @param value the property value in this scenario
      * @param valid a boolean indicating whether the scenario is valid or invalid
      * ( which affects which set of tests should be run in this scenario )
      */
-    constructor(desc, setFn, valid) {
+    constructor(desc, value, valid) {
         this.desc = desc;
-        this.set = setFn;
+        this.value = value;
         this.valid = valid;
     }
 }
