@@ -111,3 +111,17 @@ This produces the following structure:
    (`validTestsFn` or `invalidTestsFn` is run, depending on the validity of property A)
    
 1. All combinations of property A and property B when they are both defined, and `invalidTestsFn` is run every time
+
+#### `enumerate.all(properties, validTestsFn, invalidTestsFn)`
+
+Creates tests for all combinations of properties, where all must be valid for the combination to be valid.
+
+A common use case is to validate the structure of a single object with multiple properties
+
+For example
+```javascript
+const propA = new Enumerator.property('myObj.propA', baseObjFn, Enumerator.scenario.positiveNumber);
+const propB = new Enumerator.property('myObj.propB', baseObjFn, Enumerator.scenario.nonEmptyString);
+const propC = new Enumerator.property('myObj.propC', baseObjFn, Enumerator.scenario.nonEmptyString);
+Enumerator.enumerate.all([propA, propB, propC], validTestsFn, invalidTestsFn);
+``` 
