@@ -1,3 +1,6 @@
+const Scenario = require('./scenario');
+const ComplexScenario = require('./complex-scenario/complexScenario');
+
 /**
  * A class that accepts properties and expands the possible options into a set of BDD tests
  */
@@ -89,7 +92,63 @@ class Enumerate {
                 });
             });
         });
+    }
 
+    /**
+     * Recursively expand all property scenarios into a set of tests for the property
+     * @param property the property under test
+     * @param validTestsFn the tests to run when the property is valid
+     * @param invalidTestsFn the tests to run when the property is invalid
+     */
+    static complex(property, validTestsFn, invalidTestsFn) {
+        describe(property.name, () => {
+            property.scenarios.map(scenario => Enumerate.expandScenario(property, scenario, validTestsFn, invalidTestsFn));
+        });
+    }
+
+    static expandScenario(property, scenario, validTestsFn, invalidTestsFn) {
+        if (scenario instanceof ComplexScenario) {
+            if (scenario.childElements.length === 0) {
+                const leaf = new Scenario(scenario.desc, scenario.value, scenario.valid);
+                Enumerate.expandScenario(property, leaf, validTestsFn, invalidTestsFn);
+                return;
+            }
+
+            describe(scenario.desc, () => {
+                const firstChild = scenario.childElements[0];
+
+                describe(firstChild.desc, () => {
+                    firstChild.scenarios.map(childOption => {
+                        const expandedScenario = new ComplexScenario(
+                            childOption.desc,
+                            scenario.childElements.slice(1),
+                            scenario.value(childOption),
+                            scenario.valid(childOption)
+                        );
+                        Enumerate.expandScenario(property, expandedScenario, validTestsFn, invalidTestsFn);
+                    })
+                });
+            });
+        } else {
+            describe(scenario.desc, () => {
+                beforeEach(() => {
+                    if (scenario.value !== undefined) {
+                        let obj = property.baseObjFn();
+                        const path = property.name.split('.');
+                        while (path.length > 1) {
+                            const intermediate = path.shift();
+                            if (obj[intermediate] === undefined)
+                                obj[intermediate] = {};
+                            obj = obj[intermediate];
+                        }
+                        obj[path] = scenario.value;
+                    }
+                });
+
+                const tests = scenario.valid ? validTestsFn : invalidTestsFn;
+                tests();
+            });
+        }
     }
 }
 
