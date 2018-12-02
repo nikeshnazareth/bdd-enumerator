@@ -7,11 +7,11 @@ const NonEmptyArray = require('./type-checking/nonEmptyArray');
 
 module.exports = {
     enumerate: Enumerate,
-    property: Property,
     scenario: {
         presence: Presence,
         nonEmptyString: NonEmptyString,
         positiveNumber: PositiveNumber,
-        nonEmptyArray: NonEmptyArray
+        nonEmptyArray: NonEmptyArray,
+        property: Property
     }
 };
