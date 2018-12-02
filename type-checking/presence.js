@@ -1,4 +1,4 @@
-const Scenario = require('./scenario');
+const Scenario = require('../scenario');
 
 /**
  * A classes that augments property scenarios with the case where the property is undefined

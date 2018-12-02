@@ -55,11 +55,11 @@ Enumerator.enumerate.simple(myProp, validTestsFn, invalidTestsFn);
 
 #### Primitive type-checking
 ##### `scenario.nonEmptyString`
-#####`scenario.positiveNumber`
+##### `scenario.positiveNumber`
 
 #### Presence
-#####`scenario.presence.required(scenarios)`
-#####`scenario.presence.optional(scenarios)`
+##### `scenario.presence.required(scenarios)`
+##### `scenario.presence.optional(scenarios)`
 
 These are wrappers around scenarios to add a new scenario for when the property is undefined.
 
@@ -73,12 +73,18 @@ const myProp = new Enumerator.property('myProp', () => baseObj, augmentedScenari
 Enumerator.enumerate.simple(myProp, validTestsFn, invalidTestsFn); 
 ```
 
+#### Complex type-checking
+##### `scenario.nonEmptyArray`
+
+These scenarios are dependent on other types and need to be enumerated with the `complex` enumeration method.
+
+
 ### Enumeration
 #### `enumerate.simple(property, validTestFn, invalidTestsFn)`
 
 Iterate directly over a single property's scenarios to produce BDD tests. Specifically:
 1. It creates a describe block for the property
-1. It creates a sub-describe block for each scenario where:
+1. It creates a sub-describe block for each scenario. in which:
    1. the scenario is instantiated
    1. `validTestsFn` is run if the scenario is valid
    1. `invalidTestsFn` in run if the scenario is invalid
@@ -125,3 +131,19 @@ const propB = new Enumerator.property('myObj.propB', baseObjFn, Enumerator.scena
 const propC = new Enumerator.property('myObj.propC', baseObjFn, Enumerator.scenario.nonEmptyString);
 Enumerator.enumerate.all([propA, propB, propC], validTestsFn, invalidTestsFn);
 ``` 
+
+#### `enumerate.complex(property, validTestsFn, invalidTestsFn)`
+
+Recursively iterate over the scenarios of a complex (with child elements) property to produce BDD tests. Specifically:
+1. It creates a describe block for the property
+1. It recursively creates sub-describe blocks for each scenario and child scenarios, in which:
+   1. the complete scenario is instantiated
+   1. `validTestsFn` is run if the scenario is valid
+   1. `invalidTestsFn` in run if the scenario is invalid
+
+```javascript
+// Describes an array of non-empty strings where the tests use elements drawn from the nonEmptyString scenarios
+const scenarios = Enumerator.scenario.nonEmptyArray(Enumerator.scenario.nonEmptyString);
+const myArray = new Enumerator.property('myArray', () => baseObj, scenarios);
+Enumerator.enumerate.complex(myArray, validTestsFn, invalidTestsFn); 
+```
