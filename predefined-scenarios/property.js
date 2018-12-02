@@ -1,5 +1,5 @@
-const Scenario = require('./scenario');
-const ChildElement = require('./childElement');
+const Scenario = require('../scenario');
+const ChildElement = require('../childElement');
 
 const Property = (name, baseObjectFn, scenarios) =>
     new Scenario(

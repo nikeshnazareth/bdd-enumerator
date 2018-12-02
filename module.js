@@ -1,9 +1,9 @@
 const Enumerate = require('./enumerate');
-const Property = require('./property');
-const Presence = require('./type-checking/presence');
-const NonEmptyString = require('./type-checking/nonEmptyString');
-const PositiveNumber = require('./type-checking/positiveNumber');
-const NonEmptyArray = require('./type-checking/nonEmptyArray');
+const Property = require('./predefined-scenarios/property');
+const Presence = require('./predefined-scenarios/presence');
+const NonEmptyString = require('./predefined-scenarios/nonEmptyString');
+const PositiveNumber = require('./predefined-scenarios/positiveNumber');
+const NonEmptyArray = require('./predefined-scenarios/nonEmptyArray');
 
 module.exports = {
     enumerate: Enumerate,
