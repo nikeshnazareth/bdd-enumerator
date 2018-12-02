@@ -6,37 +6,6 @@ const Scenario = require('./scenario');
 class Enumerate {
 
     /**
-     * Directly expand the single property scenarios into a set of tests for that property
-     * @param property the property under test
-     * @param validTestsFn the tests to run when the property is valid
-     * @param invalidTestsFn the tests to run when the property is invalid
-     */
-    static simple(property, validTestsFn, invalidTestsFn) {
-        describe(property.name, () => {
-            property.scenarios.map(scenario => {
-                describe(scenario.desc, () => {
-                    beforeEach(() => {
-                        if (scenario.value !== undefined) {
-                            let obj = property.baseObjFn();
-                            const path = property.name.split('.');
-                            while (path.length > 1) {
-                                const intermediate = path.shift();
-                                if (obj[intermediate] === undefined)
-                                    obj[intermediate] = {};
-                                obj = obj[intermediate];
-                            }
-                            obj[path] = scenario.value;
-                        }
-                    });
-
-                    const tests = scenario.valid ? validTestsFn : invalidTestsFn;
-                    tests();
-                });
-            });
-        });
-    }
-
-    /**
      * Create tests for all combinations of two property scenarios where the combination
      * is invalid if both properties are defined
      * @param propA the first property under test ( any property that is defined in all scenarios )
@@ -90,18 +59,6 @@ class Enumerate {
                         Enumerate.all(properties.slice(1), invalidTestsFn, invalidTestsFn);
                 });
             });
-        });
-    }
-
-    /**
-     * Recursively expand all property scenarios into a set of tests for the property
-     * @param property the property under test
-     * @param validTestsFn the tests to run when the property is valid
-     * @param invalidTestsFn the tests to run when the property is invalid
-     */
-    static complex(property, validTestsFn, invalidTestsFn) {
-        describe(property.name, () => {
-            property.scenarios.map(scenario => Enumerate.expandScenario(property, scenario, validTestsFn, invalidTestsFn));
         });
     }
 
