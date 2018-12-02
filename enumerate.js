@@ -1,5 +1,4 @@
 const Scenario = require('./scenario');
-const ComplexScenario = require('./complex-scenario/complexScenario');
 
 /**
  * A class that accepts properties and expands the possible options into a set of BDD tests
@@ -116,7 +115,7 @@ class Enumerate {
                 const firstChild = scenario.childElements[0];
                 describe(firstChild.desc, () => {
                     firstChild.scenarios.map(childOption => {
-                        const expandedScenario = new ComplexScenario(
+                        const expandedScenario = new Scenario(
                             childOption.desc,
                             scenario.childElements.slice(1),
                             scenario.value(childOption),

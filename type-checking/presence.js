@@ -1,4 +1,4 @@
-const Scenario = require('../scenario');
+const SimpleScenario = require('../simpleScenario');
 
 /**
  * A classes that augments property scenarios with the case where the property is undefined
@@ -11,7 +11,7 @@ class Presence {
      */
     static optional(scenarios) {
         return [
-            new Scenario('is undefined', undefined, true),
+            new SimpleScenario('is undefined', undefined, true),
             ...scenarios
         ];
     }
@@ -22,7 +22,7 @@ class Presence {
      */
     static required(scenarios) {
         return [
-            new Scenario('is undefined', undefined, false),
+            new SimpleScenario('is undefined', undefined, false),
             ...scenarios
         ];
     }

@@ -1,16 +1,16 @@
-const ComplexScenario = require('./complex-scenario/complexScenario');
-const ChildElement = require('./complex-scenario/childElement');
+const Scenario = require('./scenario');
+const ChildElement = require('./childElement');
 
 const Property = (name, baseObjectFn, scenarios) =>
-    new ComplexScenario(
+    new Scenario(
         'property',
         [new ChildElement(name, scenarios)],
-        scenario => undefined,
-        scenario => scenario.valid,
-        scenario => {
-            if (scenario.value !== undefined) {
+        child => undefined,
+        child => child.valid,
+        child => {
+            if (child.value !== undefined) {
                 const baseObj = baseObjectFn();
-                baseObj[name] = scenario.value;
+                baseObj[name] = child.value;
             }
         },
     );

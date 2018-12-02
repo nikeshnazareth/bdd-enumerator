@@ -1,12 +1,12 @@
-const Scenario = require('../scenario');
+const SimpleScenario = require('../simpleScenario');
 
 const PositiveNumber = [
-    new Scenario('is a string', 'Arbitrary string', false),
-    new Scenario('is a negative number', -1, false),
-    new Scenario('is zero', 0, false),
-    new Scenario('is one', 1, true),
-    new Scenario('is another positive integer', 2, true),
-    new Scenario('is a positive fraction', 2.6, true)
+    new SimpleScenario('is a string', 'Arbitrary string', false),
+    new SimpleScenario('is a negative number', -1, false),
+    new SimpleScenario('is zero', 0, false),
+    new SimpleScenario('is one', 1, true),
+    new SimpleScenario('is another positive integer', 2, true),
+    new SimpleScenario('is a positive fraction', 2.6, true)
 ];
 
 module.exports = PositiveNumber;
