@@ -6,22 +6,6 @@ const Scenario = require('./scenario');
 class Enumerate {
 
     /**
-     * Create tests for all combinations of two property scenarios where the combination
-     * is invalid if both properties are defined
-     * @param propA the first property under test ( any property that is defined in all scenarios )
-     * @param propB the second property under test ( any property that is defined in all scenarios )
-     * @param validTestsFn the tests to run when both properties are undefined, or one is defined and valid
-     * @param invalidTestsFn the tests to run when the defined property is invalid, or both are defined
-     */
-    static mutex(propA, propB, validTestsFn, invalidTestsFn) {
-        describe(`${propA.name} and ${propB.name} are both undefined`, validTestsFn);
-        describe(`${propA.name} is undefined`, () => Enumerate.simple(propB, validTestsFn, invalidTestsFn));
-        describe(`${propB.name} is undefined`, () => Enumerate.simple(propA, validTestsFn, invalidTestsFn));
-        const invalidInnerFn = () => Enumerate.simple(propB, invalidTestsFn, invalidTestsFn);
-        Enumerate.simple(propA, invalidInnerFn, invalidInnerFn);
-    }
-
-    /**
      * Creates tests for all combinations of properties, where the combination is only valid when
      * all individual properties are valid
      * @param properties a list of properties to test
@@ -65,7 +49,7 @@ class Enumerate {
     static expandScenario(scenario, validTestsFn, invalidTestsFn) {
         describe(scenario.desc, () => {
             if (scenario.childElements.length === 0) {
-                beforeEach(scenario.set);
+                beforeEach(() => scenario.set());
                 const tests = scenario.valid ? validTestsFn : invalidTestsFn;
                 tests();
             } else {
@@ -77,10 +61,7 @@ class Enumerate {
                             scenario.childElements.slice(1),
                             scenario.value(childOption),
                             scenario.valid(childOption),
-                            () => {
-                                childOption.set();
-                                scenario.set(childOption);
-                            }
+                            scenario.set(childOption)
                         );
                         Enumerate.expandScenario(expandedScenario, validTestsFn, invalidTestsFn);
                     })

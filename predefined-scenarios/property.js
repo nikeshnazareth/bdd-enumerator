@@ -7,7 +7,7 @@ const Property = (name, baseObjectFn, scenarios) =>
         [new ChildElement(name, scenarios)],
         child => undefined,
         child => child.valid,
-        child => {
+        child => () => {
             if (child.value !== undefined) {
                 const baseObj = baseObjectFn();
                 baseObj[name] = child.value;
