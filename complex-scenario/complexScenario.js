@@ -16,9 +16,10 @@ class ComplexScenario extends Scenario {
      *   for each child element (in order) and produces the combined validity.
      *   If childElements is empty, it is the direct validity boolean (ie. ComplexScenario behaves like Scenario)
      */
-    constructor(desc, childElements, value, valid) {
+    constructor(desc, childElements, value, valid, set) {
         super(desc, value, valid);
         this.childElements = childElements;
+        this.set = set;
     }
 }
 

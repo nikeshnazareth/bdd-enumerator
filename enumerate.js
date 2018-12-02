@@ -106,49 +106,31 @@ class Enumerate {
         });
     }
 
-    static expandScenario(property, scenario, validTestsFn, invalidTestsFn) {
-        if (scenario instanceof ComplexScenario) {
+    static expandScenario(scenario, validTestsFn, invalidTestsFn) {
+        describe(scenario.desc, () => {
             if (scenario.childElements.length === 0) {
-                const leaf = new Scenario(scenario.desc, scenario.value, scenario.valid);
-                Enumerate.expandScenario(property, leaf, validTestsFn, invalidTestsFn);
-                return;
-            }
-
-            describe(scenario.desc, () => {
+                beforeEach(scenario.set);
+                const tests = scenario.valid ? validTestsFn : invalidTestsFn;
+                tests();
+            } else {
                 const firstChild = scenario.childElements[0];
-
                 describe(firstChild.desc, () => {
                     firstChild.scenarios.map(childOption => {
                         const expandedScenario = new ComplexScenario(
                             childOption.desc,
                             scenario.childElements.slice(1),
                             scenario.value(childOption),
-                            scenario.valid(childOption)
+                            scenario.valid(childOption),
+                            () => {
+                                childOption.set();
+                                scenario.set(childOption);
+                            }
                         );
-                        Enumerate.expandScenario(property, expandedScenario, validTestsFn, invalidTestsFn);
+                        Enumerate.expandScenario(expandedScenario, validTestsFn, invalidTestsFn);
                     })
                 });
-            });
-        } else {
-            describe(scenario.desc, () => {
-                beforeEach(() => {
-                    if (scenario.value !== undefined) {
-                        let obj = property.baseObjFn();
-                        const path = property.name.split('.');
-                        while (path.length > 1) {
-                            const intermediate = path.shift();
-                            if (obj[intermediate] === undefined)
-                                obj[intermediate] = {};
-                            obj = obj[intermediate];
-                        }
-                        obj[path] = scenario.value;
-                    }
-                });
-
-                const tests = scenario.valid ? validTestsFn : invalidTestsFn;
-                tests();
-            });
-        }
+            }
+        });
     }
 }
 
