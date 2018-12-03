@@ -1,7 +1,7 @@
 const Enumerate = require('./enumerate');
 const Presence = require('./predefined-scenarios/presence');
 const NonEmptyString = require('./predefined-scenarios/nonEmptyString');
-const PositiveNumber = require('./predefined-scenarios/positiveNumber');
+const FinitePositiveNumber = require('./predefined-scenarios/finitePositiveNumber');
 const NonEmptyArray = require('./predefined-scenarios/nonEmptyArray');
 const GenericObject = require('./predefined-scenarios/genericObject');
 const Property = require('./predefined-scenarios/property');
@@ -15,7 +15,7 @@ module.exports = {
     scenario: {
         presence: Presence,
         nonEmptyString: NonEmptyString,
-        positiveNumber: PositiveNumber,
+        finitePositiveNumber: FinitePositiveNumber,
         nonEmptyArray: NonEmptyArray,
         object: GenericObject,
         property: Property,

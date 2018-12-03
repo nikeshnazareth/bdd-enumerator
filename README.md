@@ -27,7 +27,7 @@ Choose a set of scenarios to enumerate over.
 
 For example,
 ```javascript
-const myScenarios = Enumerator.scenario.positiveNumber
+const myScenarios = Enumerator.scenario.finitePositiveNumber
 ```
 
 The mechanism to apply a scenario to a test can be customised, but typically you would specify a property
@@ -60,12 +60,12 @@ const scenarios = Enumerator.scenario.nonEmptyString;
 Enumerator.enumerate(Enumerator.scenario.property('myString', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
 ```
 
-##### `scenario.positiveNumber`
+##### `scenario.finitePositiveNumber`
 
-An array of scenarios to confirm that a property is valid if and only if it is a positive number
+An array of scenarios to confirm that a property is valid if and only if it is a finite positive number
 ```javascript
 let baseObj;
-const scenarios = Enumerator.scenario.positiveNumber;
+const scenarios = Enumerator.scenario.finitePositiveNumber;
 Enumerator.enumerate(Enumerator.scenario.property('myNumber', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
 ```
 ##### `scenario.presence.required`
@@ -101,8 +101,8 @@ A function that embeds specified scenarios as items within an array to confirm t
 if and only if it is a non-empty array and the items conform to the scenarios.
 ```javascript
 let baseObj;
-// confirm myArray is valid if and only if it is a non-empty array of positive numbers
-const scenarios = Enumerator.scenario.nonEmptyArray(Enumerator.scenario.positiveNumber);
+// confirm myArray is valid if and only if it is a non-empty array of finite positive numbers
+const scenarios = Enumerator.scenario.nonEmptyArray(Enumerator.scenario.finitePositiveNumber);
 Enumerator.enumerate(Enumerator.scenario.property('myArray', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
 ```
 
@@ -113,11 +113,11 @@ the properties are added to a single object and they are all valid individually.
 ```javascript
 let baseObj;
 // confirm myObject is valid if and only if:
-//   - propA is a positive number
+//   - propA is a finite positive number
 //   - propB is a required (cannot be undefined) non-empty string
 //   - propC is a non-empty array of non-empty strings
 const scenarios = Enumerator.scenario.object([
-    Enumerator.custom.dependent('propA', Enumerator.scenario.positiveNumber),
+    Enumerator.custom.dependent('propA', Enumerator.scenario.finitePositiveNumber),
     Enumerator.custom.dependent('propB', Enumerator.scenario.presence.required(Enumerator.scenario.nonEmptyString)),
     Enumerator.custom.dependent('propC', Enumerator.scenario.nonEmptyArray(Enumerator.scenario.nonEmptyString)),
 ]);
@@ -132,7 +132,7 @@ or both are defined )
 let baseObj;
 const mutexScenario = Enumerator.scenario.mutexProperties(
     () => baseObj,
-    Enumerator.custom.dependent('propA', Enumerator.scenario.positiveNumber),
+    Enumerator.custom.dependent('propA', Enumerator.scenario.finitePositiveNumber),
     Enumerator.custom.dependent('propB', Enumerator.scenario.nonEmptyString)
 );
 Enumerator.enumerate(mutexScenario, validTestsFn, invalidTestFn);
