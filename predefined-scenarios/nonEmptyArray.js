@@ -11,14 +11,14 @@ const NonEmptyArray = (itemScenarios) => [
         [new ChildElement('element', itemScenarios)],
         element => [element.value],
         element => element.valid,
-        () => undefined
+        () => () => undefined
     ),
     new Scenario(
         'has two elements',
         [new ChildElement('first element', itemScenarios), new ChildElement('second element', itemScenarios)],
         first => second => [first.value, second.value],
         first => second => first.valid && second.valid,
-        () => undefined
+        () => () => undefined
     )
 ];
 

@@ -3,7 +3,7 @@ const ChildElement = require('../childElement');
 
 const Property = (name, baseObjectFn, scenarios) =>
     new Scenario(
-        'property',
+        null,
         [new ChildElement(name, scenarios)],
         child => undefined,
         child => child.valid,

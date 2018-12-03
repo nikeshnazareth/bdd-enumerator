@@ -2,7 +2,7 @@ const Scenario = require('../scenario');
 
 const MutexProperties = (baseObjFn, childElementA, childElementB) =>
     new Scenario(
-        `mutually exclusive properties ${childElementA.desc} and ${childElementB.desc}`,
+        null,
         [
             childElementA,
             childElementB
