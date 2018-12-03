@@ -3,6 +3,7 @@ const Presence = require('./predefined-scenarios/presence');
 const NonEmptyString = require('./predefined-scenarios/nonEmptyString');
 const PositiveNumber = require('./predefined-scenarios/positiveNumber');
 const NonEmptyArray = require('./predefined-scenarios/nonEmptyArray');
+const GenericObject = require('./predefined-scenarios/genericObject');
 const Property = require('./predefined-scenarios/property');
 const MutexProperties = require('./predefined-scenarios/mutexProperties');
 const ChildElement = require('./childElement');
@@ -14,8 +15,9 @@ module.exports = {
         nonEmptyString: NonEmptyString,
         positiveNumber: PositiveNumber,
         nonEmptyArray: NonEmptyArray,
+        object: GenericObject,
         property: Property,
-        mutexProperties: MutexProperties
+        mutexProperties: MutexProperties,
     },
     helper: {
         childElement: ChildElement
