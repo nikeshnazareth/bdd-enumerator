@@ -165,7 +165,7 @@ which may be overwhelming for a scenario with a large number of dependents and s
 
 ```javascript
 // The implementation of `scenario.mutexProperties`
-const MutexProperties = (baseObjFn, propertyA, propertyB) => [
+const MutexProperties = (baseObjFn, propertyA, propertyB) => 
   new Scenario(
       // the name of the scenario. Set it to null since we don't want the description of this scenario to appear in any describe block 
       // (the dependent properties will be enumerated and described individually - we are simply modifying the validity conditions)
@@ -188,8 +188,7 @@ const MutexProperties = (baseObjFn, propertyA, propertyB) => [
         if (B.value !== undefined)
             baseObj[propertyB.desc] = B.value;
       }
-  )  
-];
+  );
 ```
 
 

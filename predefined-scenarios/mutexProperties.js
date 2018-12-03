@@ -7,7 +7,7 @@ const Scenario = require('../scenario');
  * @param propertyA the Dependent object associated with the first property
  * @param propertyB the Dependent object associated with the second property
  */
-const MutexProperties = (baseObjFn, propertyA, propertyB) => [
+const MutexProperties = (baseObjFn, propertyA, propertyB) =>
     new Scenario(
         null,
         [ propertyA, propertyB],
@@ -20,7 +20,6 @@ const MutexProperties = (baseObjFn, propertyA, propertyB) => [
             if (B.value !== undefined)
                 baseObj[propertyB.desc] = B.value;
         }
-    )
-];
+    );
 
 module.exports = MutexProperties;
