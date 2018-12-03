@@ -6,7 +6,9 @@ const NonEmptyArray = require('./predefined-scenarios/nonEmptyArray');
 const GenericObject = require('./predefined-scenarios/genericObject');
 const Property = require('./predefined-scenarios/property');
 const MutexProperties = require('./predefined-scenarios/mutexProperties');
-const ChildElement = require('./childElement');
+const Scenario = require('./scenario');
+const SimpleScenario = require('./simpleScenario');
+const Dependent = require('./dependent');
 
 module.exports = {
     enumerate: Enumerate,
@@ -19,7 +21,9 @@ module.exports = {
         property: Property,
         mutexProperties: MutexProperties,
     },
-    helper: {
-        childElement: ChildElement
+    custom: {
+        scenario: Scenario,
+        simple: SimpleScenario,
+        dependent: Dependent
     }
 };

@@ -1,24 +1,29 @@
 const SimpleScenario = require('../simpleScenario');
 const Scenario = require('../scenario');
-const ChildElement = require('../childElement');
+const Dependent = require('../dependent');
 
-const NonEmptyArray = (itemScenarios) => [
+/**
+ * A list of scenarios to check for an object that is supposed to be a non-empty array
+ * with elements that match the specified scenarios
+ * @param elementScenarios possible values for items in the array
+ */
+const NonEmptyArray = (elementScenarios) => [
     new SimpleScenario('is a string', 'Arbitrary string', false),
     new SimpleScenario('is a number', 1, false),
     new SimpleScenario('is an empty array', [], false),
     new Scenario(
         'has a single element',
-        [new ChildElement('element', itemScenarios)],
+        [new Dependent('element', elementScenarios)],
         element => [element.value],
         element => element.valid,
         () => () => undefined
     ),
     new Scenario(
         'has two elements',
-        [new ChildElement('first element', itemScenarios), new ChildElement('second element', itemScenarios)],
+        [new Dependent('first element', elementScenarios), new Dependent('second element', elementScenarios)],
         first => second => [first.value, second.value],
         first => second => first.valid && second.valid,
-        () => () => undefined
+        () => () => () => undefined
     )
 ];
 

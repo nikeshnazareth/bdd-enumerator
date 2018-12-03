@@ -1,5 +1,8 @@
 const SimpleScenario = require('../simpleScenario');
 
+/**
+ * A list of scenarios to check for a property that is supposed to be a positive number
+ */
 const PositiveNumber = [
     new SimpleScenario('is a string', 'Arbitrary string', false),
     new SimpleScenario('is a negative number', -1, false),

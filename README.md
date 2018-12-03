@@ -23,24 +23,20 @@ Add the enumerator module to your test file
 const Enumerator = require ('bdd-enumerator/module');
 ```
   
-Create an array of `Scenario` classes with the properties
-* `desc`: a description of the use case (the title of the describe block)
-* `value`: the value of the property under test
-* `valid`: whether or not the scenario is valid ( ie. which set of tests to run )
-
-This project contains some predefined scenarios that can be used. 
+Choose a set of scenarios to enumerate over.
 
 For example,
 ```javascript
-const myStringScenarios = Enumerator.property.type.nonEmptyString
+const myScenarios = Enumerator.scenario.positiveNumber
 ```
 
-Specify which property should be modified when iterating through the scenarios.
+The mechanism to apply a scenario to a test can be customised, but typically you would specify a property
+on an object that should be set to the scenario's value. 
+
 Note that the base object is identified through a function, because it may not be defined before the test begins.
 ```javascript
-const baseObj; // the object to be modified. Each test will set baseObj.myProp to the scenario value
-// for deeper properties, describe the path using dot notation (eg. firstlevel.intermediate.myProp)
-const myProp = new Enumerator.property('myProp', () => baseObj, myStringScenarios);
+let baseObj; // the object to be modified. Each test block will set baseObj.myProp to the scenario value
+const myProp = Enumerator.scenario.property('myProp', () => baseObj, myScenarios);
 ```
   
 Enumerate over the scenarios
@@ -48,102 +44,195 @@ Enumerate over the scenarios
 // create BDD test blocks in place
 const validTestsFn = () => { ... }; // any tests to be run in valid scenarios
 const invalidTestsFn = () => { ... }; // any tests to be run in invalid scenarios
-Enumerator.enumerate.simple(myProp, validTestsFn, invalidTestsFn); 
+Enumerator.enumerate(myProp, validTestsFn, invalidTestsFn); 
 ```
 
-### Predefined Scenarios
+### Available scenarios
 
-#### Primitive type-checking
+#### Predefined
+
 ##### `scenario.nonEmptyString`
+
+An array of scenarios to confirm that a property is valid if and only if it is a non-empty string
+```javascript
+let baseObj;
+const scenarios = Enumerator.scenario.nonEmptyString;
+Enumerator.enumerate(Enumerator.scenario.property('myString', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
+```
+
 ##### `scenario.positiveNumber`
 
-#### Presence
-##### `scenario.presence.required(scenarios)`
-##### `scenario.presence.optional(scenarios)`
-
-These are wrappers around scenarios to add a new scenario for when the property is undefined.
-
-For example,
+An array of scenarios to confirm that a property is valid if and only if it is a positive number
 ```javascript
-// [ using myStringScenarios from above ]
-const augmentedScenarios = Enumerator.scenario.presence.required(myStringScenarios); 
-Enumerator.enumerate(augmentedScenarios, validTestsFn, invalidTestsFn);
-// as above...
-const myProp = new Enumerator.property('myProp', () => baseObj, augmentedScenarios);
-Enumerator.enumerate.simple(myProp, validTestsFn, invalidTestsFn); 
+let baseObj;
+const scenarios = Enumerator.scenario.positiveNumber;
+Enumerator.enumerate(Enumerator.scenario.property('myNumber', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
+```
+##### `scenario.presence.required`
+
+A wrapper around an array of scenarios to add a new scenario for when the property is undefined (and invalid)
+```javascript
+let baseObj;
+const scenarios = Enumerator.scenario.presence.required(Enumerator.scenario.nonEmptyString);
+Enumerator.enumerate(Enumerator.scenario.property('myRequiredString', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
 ```
 
-#### Complex type-checking
+##### `scenario.presence.optional`
+
+A wrapper around an array of scenarios to add a new scenario for when the property is undefined (and valid)
+```javascript
+let baseObj;
+const scenarios = Enumerator.scenario.presence.optional(Enumerator.scenario.nonEmptyString);
+Enumerator.enumerate(Enumerator.scenario.property('myOptionalString', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
+```
+
+##### `scenario.property`
+
+A function that applies specified scenarios to an object. This is the simplest mechanism to use a scenario value within a test.
+Simply ensure that the test function has access to the modified object.
+```javascript
+let baseObj;
+const scenarios = Enumerator.scenario.nonEmptyString;
+Enumerator.enumerate(Enumerator.scenario.property('myString', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
+```
+
 ##### `scenario.nonEmptyArray`
-
-These scenarios are dependent on other types and need to be enumerated with the `complex` enumeration method.
-
-
-### Enumeration
-#### `enumerate.simple(property, validTestFn, invalidTestsFn)`
-
-Iterate directly over a single property's scenarios to produce BDD tests. Specifically:
-1. It creates a describe block for the property
-1. It creates a sub-describe block for each scenario. in which:
-   1. the scenario is instantiated
-   1. `validTestsFn` is run if the scenario is valid
-   1. `invalidTestsFn` in run if the scenario is invalid
-
-#### `enumerate.mutex(propertyA, propertyB, validTestsFn, invalidTestsFn)`
-
-Creates tests for all combinations of two mutually exclusive properties 
-( the scenario is invalid if both properties are defined )
-
-This function assumes that both property arguments are defined in all of their scenarios
-(ie. neither `scenario.presence.required` nor `scenario.presence.optional` were used to create the scenarios)
-and it adds additional scenarios for when either or both of them are undefined.
-
-For example
+A function that embeds specified scenarios as items within an array to confirm that a property is valid
+if and only if it is a non-empty array and the items conform to the scenarios.
 ```javascript
-const foo = new Enumerator.property('foo', () => baseObj, Enumerator.scenario.nonEmptyString);
-const bar = new Enumerator.property('foo', () => baseObj, Enumerator.scenario.positiveNumber);
-Enumerator.enumerate.mutex(foo, bar, validTestsFn, invalidTestsFn);
+let baseObj;
+// confirm myArray is valid if and only if it is a non-empty array of positive numbers
+const scenarios = Enumerator.scenario.nonEmptyArray(Enumerator.scenario.positiveNumber);
+Enumerator.enumerate(Enumerator.scenario.property('myArray', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
 ```
 
-This produces the following structure:
-1. A single test where both properties are undefined
-
-1. A describe block when property A is undefined which contains a block of tests for all property B scenarios 
-
-   (`validTestsFn` or `invalidTestsFn` is run, depending on the validity of property B)
-   
-1. A describe block when property B is undefined which contains a block of tests for all property A scenarios 
-
-   (`validTestsFn` or `invalidTestsFn` is run, depending on the validity of property A)
-   
-1. All combinations of property A and property B when they are both defined, and `invalidTestsFn` is run every time
-
-#### `enumerate.all(properties, validTestsFn, invalidTestsFn)`
-
-Creates tests for all combinations of properties, where all must be valid for the combination to be valid.
-
-A common use case is to validate the structure of a single object with multiple properties
-
-For example
-```javascript
-const propA = new Enumerator.property('myObj.propA', baseObjFn, Enumerator.scenario.positiveNumber);
-const propB = new Enumerator.property('myObj.propB', baseObjFn, Enumerator.scenario.nonEmptyString);
-const propC = new Enumerator.property('myObj.propC', baseObjFn, Enumerator.scenario.nonEmptyString);
-Enumerator.enumerate.all([propA, propB, propC], validTestsFn, invalidTestsFn);
-``` 
-
-#### `enumerate.complex(property, validTestsFn, invalidTestsFn)`
-
-Recursively iterate over the scenarios of a complex (with child elements) property to produce BDD tests. Specifically:
-1. It creates a describe block for the property
-1. It recursively creates sub-describe blocks for each scenario and child scenarios, in which:
-   1. the complete scenario is instantiated
-   1. `validTestsFn` is run if the scenario is valid
-   1. `invalidTestsFn` in run if the scenario is invalid
+##### `scenario.object`
+A function that accepts a list of `Dependent` properties and produces an array of scenarios that are valid when
+the properties are added to a single object and they are all valid individually.
 
 ```javascript
-// Describes an array of non-empty strings where the tests use elements drawn from the nonEmptyString scenarios
-const scenarios = Enumerator.scenario.nonEmptyArray(Enumerator.scenario.nonEmptyString);
-const myArray = new Enumerator.property('myArray', () => baseObj, scenarios);
-Enumerator.enumerate.complex(myArray, validTestsFn, invalidTestsFn); 
+let baseObj;
+// confirm myObject is valid if and only if:
+//   - propA is a positive number
+//   - propB is a required (cannot be undefined) non-empty string
+//   - propC is a non-empty array of non-empty strings
+const scenarios = Enumerator.scenario.object([
+    Enumerator.custom.dependent('propA', Enumerator.scenario.positiveNumber),
+    Enumerator.custom.dependent('propB', Enumerator.scenario.presence.required(Enumerator.scenario.nonEmptyString)),
+    Enumerator.custom.dependent('propC', Enumerator.scenario.nonEmptyArray(Enumerator.scenario.nonEmptyString)),
+]);
+Enumerator.enumerate(Enumerator.scenario.property('myObject', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
+```
+
+##### `scenario.mutexProperties`
+A function that creates two properties on an object based on the specified scenarios, and produces an array of scenarios
+that are valid when the properties are mutually exclusive (ie. the scenario is invalid if either property is invalid 
+or both are defined )
+```javascript
+let baseObj;
+const mutexScenario = Enumerator.scenario.mutexProperties(
+    () => baseObj,
+    Enumerator.custom.dependent('propA', Enumerator.scenario.positiveNumber),
+    Enumerator.custom.dependent('propB', Enumerator.scenario.nonEmptyString)
+);
+Enumerator.enumerate(mutexScenario, validTestsFn, invalidTestFn);
+```
+
+#### Custom
+
+##### `custom.dependent`
+
+A simple container for a name and a set of scenarios. Whenever a `scenario` contains a `dependent`, 
+all possible scenarios for the dependent property (and all possible combinations between multiple dependent properties)
+are included in the original `scenario`. 
+
+`dependent` objects offer a way to produce generic scenarios that can be instantiated by the user. 
+Refer to `scenario.nonEmptyArray` or `scenario.object` for an example usage.
+
+##### `custom.scenario`
+
+This object can be used to create a custom scenario. It is instantiated with the parameters:
+1. `desc`: a description of the scenario (the value to be written in the `describe` block title)
+1. `dependents`: any children or other dependent properties to be included in the scenario. Note that calling 
+`enumerate` on a scenario will create a test block for all possible combinations of properties,
+which may be overwhelming for a scenario with a large number of dependents and sub-dependents
+1. `value`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent
+(in order) and produces the combined property value (see the examples below).
+1. `valid`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent
+(in order) and produces the combined validity (see the examples below).
+1. `set`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent
+(in order) and produces *a function that creates* the scenario under test (see the examples below).
+
+```javascript
+// The implementation of `scenario.mutexProperties`
+const MutexProperties = (baseObjFn, propertyA, propertyB) => [
+  new Scenario(
+      // the name of the scenario. Set it to null since we don't want the description of this scenario to appear in any describe block 
+      // (the dependent properties will be enumerated and described individually - we are simply modifying the validity conditions)
+      null, 
+      // the dependent properties
+      [ propertyA, propertyB ],
+      // the mutex doesn't require a value since it is not read by other scenarios
+      // Nevertheless, it is a second-degree curried function that will be instantiated once per dependency
+      A => B => undefined,
+      // the heart of the scenario is the validity function which produces the mutually exclusive behaviour
+      // note that the second-degree curried function is instantiated with the property A scenario under test,
+      // followed by the property B scenario under test
+      A => B => (A.value === undefined && B.valid) || (B.value === undefined && A.valid),
+      // the set function produces the situation under test. In this case, add the scenario values to the base object
+      // under the specified property names
+      A => B => () => {
+        const baseObj = baseObjFn();
+        if (A.value !== undefined)
+            baseObj[propertyA.desc] = A.value;
+        if (B.value !== undefined)
+            baseObj[propertyB.desc] = B.value;
+      }
+  )  
+];
+```
+
+
+```javascript
+// The implementation of `scenario.nonEmptyArray`
+const NonEmptyArray = (elementScenarios) => [
+    // ... a list of simple scenarios (eg. an empty array) to test, followed by ...
+    new Scenario(
+        // we are testing how the array behaves if it has a single element
+        // this description will be written to the describe block that encapsulates this scenario
+        'has a single element',
+        // to keep this scenario generic, we allow the user to specify the scenarios for the array element,
+        // which is achieved by adding it as a dependency
+        [new Dependent('element', elementScenarios)],
+        // the value of this scenario as read by other scenarios (for example, if it is added to an object)
+        // is simply an array with one element defined by the dependent scenario
+        element => [element.value],
+        // the array scenario is valid if the underlying element scenario is valid
+        element => element.valid,
+        // we do not need to do anything to instantiate the scenario
+        // note that the setter takes a single parameter (the dependent scenario) and produces a function
+        // (to be executed in a beforeEach block)
+        () => () => undefined
+    ),
+    new Scenario(
+        // we are testing how the array behaves if it has two elements. 
+        // As above, this will be written in the describe block for this scenario
+        'has two elements',
+        // to keep this scenario generic, we allow the user to specify the scenarios for the array element,
+        // which is achieved by adding it as a dependency. There are two dependencies because we will let
+        // the two elements vary independently across the available scenarios
+        [new Dependent('first element', elementScenarios), new Dependent('second element', elementScenarios)],
+        // the value of this scenario as read by other scenarios (for example, if it is added to an object)
+        // is an array with the two elements. Note that this is a second-degree (one per dependency) curried function
+        // that gets instantiated as each element is defined
+        first => second => [first.value, second.value],
+        // the array scenario is valid if both of the element scenarios are valid
+        // once again, it is a second-degree (one per dependency) curried function
+        first => second => first.valid && second.valid,
+        // we do not need to do anything to instantiate the scenario
+        // note that the setter takes two (curried) parameters (the dependent scenarios) and produces a function
+        // (to be executed in a beforeEach block)
+        () => () => () => undefined
+    )
+];
 ```
