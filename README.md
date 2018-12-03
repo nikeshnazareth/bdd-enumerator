@@ -236,3 +236,28 @@ const NonEmptyArray = (elementScenarios) => [
     )
 ];
 ```
+
+##### `custom.simple`
+
+A convenience object for scenarios that do not have any `dependent` values and do not require a set function.
+
+It is instantiated with:
+1. `desc`: a description of the scenario (the value to be written in the `describe` block title)
+1. `value`: the value of the scenario
+1. `valid`: whether or not the scenario is valid
+
+```javascript
+const FinitePositiveNumber = [
+    new SimpleScenario('is a string', 'Arbitrary string', false),
+    new SimpleScenario('is a negative number', -1, false),
+    new SimpleScenario('is zero', 0, false),
+    new SimpleScenario('is one', 1, true),
+    new SimpleScenario('is another positive integer', 2, true),
+    new SimpleScenario('is a positive fraction', 2.6, true),
+    new SimpleScenario('is a negative fraction', -3.6, true),
+    new SimpleScenario('is NaN', Number.NaN, false),
+    new SimpleScenario('is MAX_VALUE', Number.MAX_VALUE, true),
+    new SimpleScenario('is NEGATIVE_INFINITY', Number.NEGATIVE_INFINITY, false),
+    new SimpleScenario('is POSITIVE_INFINITY', Number.POSITIVE_INFINITY, false),
+];
+```
