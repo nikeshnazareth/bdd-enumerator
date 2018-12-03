@@ -46,28 +46,37 @@ class Enumerate {
         });
     }
 
-    static expandScenario(scenario, validTestsFn, invalidTestsFn) {
-        describe(scenario.desc, () => {
+    static expandScenario(scenario, validTestsFn, invalidTestsFn, parents = []) {
+        // the contents of this scenario expansion is wrapped in a function to because it may not require a describe block
+        const wrapper = () => {
             if (scenario.childElements.length === 0) {
-                beforeEach(() => scenario.set());
-                const tests = scenario.valid ? validTestsFn : invalidTestsFn;
-                tests();
+                beforeEach(scenario.set);
+
+                if (parents.length > 0) {
+                    const parent = parents[0];
+                    const partialParent = new Scenario(
+                        null,
+                        parent.childElements.slice(1),
+                        parent.value(scenario),
+                        parent.valid(scenario),
+                        parent.set(scenario)
+                    );
+                    Enumerate.expandScenario(partialParent, validTestsFn, invalidTestsFn, parents.slice(1))
+                } else {
+                    const tests = scenario.valid ? validTestsFn : invalidTestsFn;
+                    tests();
+                }
             } else {
-                const firstChild = scenario.childElements[0];
-                describe(firstChild.desc, () => {
-                    firstChild.scenarios.map(childOption => {
-                        const expandedScenario = new Scenario(
-                            childOption.desc,
-                            scenario.childElements.slice(1),
-                            scenario.value(childOption),
-                            scenario.valid(childOption),
-                            scenario.set(childOption)
-                        );
-                        Enumerate.expandScenario(expandedScenario, validTestsFn, invalidTestsFn);
-                    })
+                const nextProperty = scenario.childElements[0];
+                describe(nextProperty.desc, () => {
+                    nextProperty.scenarios.map(subScenario =>
+                        Enumerate.expandScenario(subScenario, validTestsFn, invalidTestsFn, [scenario, ...parents]));
                 });
             }
-        });
+        };
+
+        const contents = scenario.desc ? () => describe(scenario.desc, wrapper) : wrapper;
+        contents();
     }
 }
 
