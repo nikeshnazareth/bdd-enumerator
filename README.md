@@ -68,6 +68,17 @@ let baseObj;
 const scenarios = Enumerator.scenario.finitePositiveNumber;
 Enumerator.enumerate(Enumerator.scenario.property('myNumber', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
 ```
+
+##### `scenario.boundedInteger`
+
+An array of scenarios to confirm that a property is valid if and only if it is an integer within the specified
+bounds (inclusive).
+```javascript
+let baseObj;
+const scenarios = Enumerator.scenario.boundedInteger(3, 8);
+Enumerator.enumerate(Enumerator.scenario.property('myInteger', () => baseObj, scenarios ), validTestsFn, invalidTestFn);
+```
+
 ##### `scenario.presence.required`
 
 A wrapper around an array of scenarios to add a new scenario for when the property is undefined (and invalid)
