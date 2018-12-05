@@ -27,7 +27,8 @@ const combineProperties = (names, accumulator = {}) =>
         accumulator :
         scenario => {
             const result = Object.assign({}, accumulator);
-            result[names[0]] = scenario.value;
+            if (scenario.value !== undefined)
+                result[names[0]] = scenario.value;
             return combineProperties(names.slice(1), result);
         };
 
