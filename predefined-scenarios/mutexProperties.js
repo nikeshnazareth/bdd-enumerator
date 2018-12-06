@@ -10,15 +10,21 @@ const Scenario = require('../scenario');
 const MutexProperties = (baseObjFn, propertyA, propertyB) =>
     new Scenario(
         null,
-        [ propertyA, propertyB],
+        [propertyA, propertyB],
         A => B => undefined,
         A => B => (A.value === undefined && B.valid) || (B.value === undefined && A.valid),
         A => B => () => {
             const baseObj = baseObjFn();
+
             if (A.value !== undefined)
                 baseObj[propertyA.desc] = A.value;
+            else
+                delete baseObj[propertyA.desc];
+
             if (B.value !== undefined)
                 baseObj[propertyB.desc] = B.value;
+            else
+                delete baseObj[propertyB.desc];
         }
     );
 
