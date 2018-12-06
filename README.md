@@ -14,7 +14,7 @@ the enumeration logic.
 
 Clone this repo into your project
 ```
-git submodule add https://github.com/nikeshnazareth/bdd-enumerator
+git submodule add https://github.com/nikeshnazareth/bdd-enumerator.git
 ```
   
   
