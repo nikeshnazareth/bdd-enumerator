@@ -141,12 +141,25 @@ that are valid when the properties are mutually exclusive (ie. the scenario is i
 or both are defined )
 ```javascript
 let baseObj;
-const mutexScenario = Enumerator.scenario.mutexProperties(
+const scenario = Enumerator.scenario.mutexProperties(
     () => baseObj,
     Enumerator.custom.dependent('propA', Enumerator.scenario.finitePositiveNumber),
     Enumerator.custom.dependent('propB', Enumerator.scenario.nonEmptyString)
 );
-Enumerator.enumerate(mutexScenario, validTestsFn, invalidTestFn);
+Enumerator.enumerate(scenario, validTestsFn, invalidTestFn);
+```
+
+##### `scenario.xorProperties`
+A function that creates two properties on an object based on the specified scenarios, and produces an array of scenarios
+that are valid when exactly one of the properties is defined (and of course, both are valid)
+```javascript
+let baseObj;
+const scenario = Enumerator.scenario.xorProperties(
+    () => baseObj,
+    Enumerator.custom.dependent('propA', Enumerator.scenario.finitePositiveNumber),
+    Enumerator.custom.dependent('propB', Enumerator.scenario.nonEmptyString)
+);
+Enumerator.enumerate(scenario, validTestsFn, invalidTestFn);
 ```
 
 #### Custom

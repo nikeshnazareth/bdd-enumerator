@@ -7,6 +7,7 @@ const NonEmptyArray = require('./predefined-scenarios/nonEmptyArray');
 const GenericObject = require('./predefined-scenarios/genericObject');
 const Property = require('./predefined-scenarios/property');
 const MutexProperties = require('./predefined-scenarios/mutexProperties');
+const XorProperties = require('./predefined-scenarios/xorProperties');
 const Scenario = require('./scenario');
 const SimpleScenario = require('./simpleScenario');
 const Dependent = require('./dependent');
@@ -22,6 +23,7 @@ module.exports = {
         object: GenericObject,
         property: Property,
         mutexProperties: MutexProperties,
+        xorProperties: XorProperties
     },
     custom: {
         scenario: Scenario,
