@@ -5,6 +5,7 @@ const SimpleScenario = require('../simpleScenario');
  */
 const FinitePositiveNumber = [
     new SimpleScenario('is a string', 'Arbitrary string', false),
+    new SimpleScenario('is a string of a number', '1', false),
     new SimpleScenario('is a negative number', -1, false),
     new SimpleScenario('is zero', 0, false),
     new SimpleScenario('is one', 1, true),
