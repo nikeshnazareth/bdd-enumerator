@@ -47,6 +47,25 @@ const invalidTestsFn = () => { ... }; // any tests to be run in invalid scenario
 Enumerator.enumerate(myProp, validTestsFn, invalidTestsFn); 
 ```
 
+### Short circuiting enumeration
+
+Whenever a scenario has dependents (see below), `enumerate` creates a test block for all possible dependent combinations.
+However, in most cases, the whole scenario will be invalid if any of the sub-scenarios are invalid, so the full enumeration
+is unnecessary. The function accepts a `shortcircuit` flag indicating whether the branching tree should be pruned. 
+
+For example, consider an object with two properties, each with a set of 10 scenarios to test. There are 100 possible combinations
+but many are redundant. If the first property is intended to be a finite positive number but in a particular scenario it 
+is negative, the combined scenario will be invalid for any value of the second property. In particular, if the code under 
+test follows the same execution path as soon as it realises the first property is invalid, enumerating over the possible
+values for the second property is wasteful (and can be prohibitively so for complex scenarios). When the `shortcircuit` flag is set, a single value (specifically, the first option) 
+for the second property is arbitrarily used in the test block. The string `"USE ONLY FIRST BRANCH ON THIS TREE"` is 
+added to the `describe` block title to indicate that pruning has occurred.
+
+Since this is the typical behaviour of the code under test (especially if it was written defensively), the `shortcircuit`
+flag is set by default. To achieve full enumeration, it needs to be explicitly disabled.
+```javascript
+Enumerator.enumerate(myProp, validTestsFn, invalidTestsFn, false /* don't prune invalid branches */); 
+```
 ### Available scenarios
 
 #### Predefined
@@ -277,7 +296,7 @@ const FinitePositiveNumber = [
     new SimpleScenario('is one', 1, true),
     new SimpleScenario('is another positive integer', 2, true),
     new SimpleScenario('is a positive fraction', 2.6, true),
-    new SimpleScenario('is a negative fraction', -3.6, true),
+    new SimpleScenario('is a negative fraction', -3.6, false),
     new SimpleScenario('is NaN', Number.NaN, false),
     new SimpleScenario('is MAX_VALUE', Number.MAX_VALUE, true),
     new SimpleScenario('is NEGATIVE_INFINITY', Number.NEGATIVE_INFINITY, false),
