@@ -2,69 +2,130 @@
 
 ## Overview
 
-Often, my BDD (mocha or jasmine) unit tests involve running similar tests with minor tweaks.
+Often, BDD unit tests involve running similar tests with minor tweaks.
 
-Depending on the complexity, this can either involve manually duplicating and tweaking individual tests,
-or enumerating over ever-increasing-in-complexity-and-recursion functions to generate the tests.
+Depending on the complexity, this can either involve manually duplicating and tweaking individual tests, or enumerating over a series of ever-increasing-in-complexity-and-recursion functions to generate the tests.
 
-This project is intended to simplify the second method, and increase code clarity, by abstracting and reusing
-the enumeration logic.
+This module simplifies the second method and increases code clarity by abstracting the enumeration logic.
+
+## Installation
+
+```
+npm install bdd-enumerator
+```
 
 ## Usage
 
-Clone this repo into your project
-```
-git submodule add https://github.com/nikeshnazareth/bdd-enumerator.git
-```
-  
-  
-Add the enumerator module to your test file
+#### Add the enumerator to your test file
 ```javascript
-const Enumerator = require ('bdd-enumerator/module');
+const Enumerator = require('bdd-enumerator');
 ```
-  
-Choose a set of scenarios to enumerate over.
+
+#### Choose a set of scenarios to enumerate over.
 
 For example,
 ```javascript
-const myScenarios = Enumerator.scenario.finitePositiveNumber
+const myScenarios = Enumerator.scenario.finitePositiveNumber;
 ```
 
-The mechanism to apply a scenario to a test can be customised, but typically you would specify a property
-on an object that should be set to the scenario's value. 
+The mechanism to apply a scenario to a test can be customized, but typically you would specify a property on an object that should be set to the scenario's value.
 
-Note that the base object is identified through a function, because it may not be defined before the test begins.
+Note that the base object is identified through a function, because it might be undefined before the test begins.
 ```javascript
 let baseObj; // the object to be modified. Each test block will set baseObj.myProp to the scenario value
 const myProp = Enumerator.scenario.property('myProp', () => baseObj, myScenarios);
 ```
-  
-Enumerate over the scenarios
+
+#### Enumerate over the scenarios
 ```javascript
 // create BDD test blocks in place
 const validTestsFn = () => { ... }; // any tests to be run in valid scenarios
 const invalidTestsFn = () => { ... }; // any tests to be run in invalid scenarios
-Enumerator.enumerate(myProp, validTestsFn, invalidTestsFn); 
+Enumerator.enumerate(myProp, validTestsFn, invalidTestsFn);
+```
+
+#### Result
+In this example the module will create the following sequence of unit tests:
+```javascript
+
+// This function is not actually defined in the namespace
+// It is only included here as a helper function to simplify the following description
+const setMyPropTo = (value) => {
+  baseObj.myProp = value;
+}
+
+describe('myProp', () => {
+  describe('is a string', () => {
+    beforeEach(() => setMyPropTo('Arbitrary string'));
+    invalidTestsFn();
+  });
+
+  describe('is a string of a number', () => {
+    beforeEach(() => setMyPropTo('1'));
+    invalidTestsFn();
+  });
+
+  describe('is a negative number', () => {
+    beforeEach(() => setMyPropTo(-1));
+    invalidTestsFn();
+  });
+
+  describe('is zero', () => {
+    beforeEach(() => setMyPropTo(0));
+    invalidTestsFn();
+  });
+
+  describe('is one', () => {
+    beforeEach(() => setMyPropTo(1));
+    validTestsFn();
+  });
+
+  describe('is another positive integer', () => {
+    beforeEach(() => setMyPropTo(2));
+    validTestsFn();
+  });
+
+  describe('is a positive fraction', () => {
+    beforeEach(() => setMyPropTo(2.6));
+    validTestsFn();
+  });
+
+  describe('is a negative fraction', () => {
+    beforeEach(() => setMyPropTo(-3.6));
+    invalidTestsFn();
+  });
+
+  describe('is NaN', () => {
+    beforeEach(() => setMyPropTo(Number.NaN));
+    invalidTestsFn();
+  });
+
+  describe('is MAX_VALUE', () => {
+    beforeEach(() => setMyPropTo(Number.MAX_VALUE));
+    validTestsFn();
+  });
+
+  describe('is NEGATIVE_INFINITY', () => {
+    beforeEach(() => setMyPropTo(Number.NEGATIVE_INFINITY));
+    invalidTestsFn();
+  });
+
+  describe('is POSITIVE_INFINITY', () => {
+    beforeEach(() => setMyPropTo(Number.POSITIVE_INFINITY));
+    invalidTestsFn();
+  });
+});
 ```
 
 ### Short circuiting enumeration
 
-Whenever a scenario has dependents (see below), `enumerate` creates a test block for all possible dependent combinations.
-However, in most cases, the whole scenario will be invalid if any of the sub-scenarios are invalid, so the full enumeration
-is unnecessary. The function accepts a `shortcircuit` flag indicating whether the branching tree should be pruned. 
+Whenever a scenario has dependents (see below), `enumerate` creates a test block for all possible dependent combinations. However, in most cases, the whole scenario will be invalid if any of the sub-scenarios are invalid, so the full enumeration is unnecessary. The function accepts a `shortcircuit` flag indicating whether the branching tree should be pruned.
 
-For example, consider an object with two properties, each with a set of 10 scenarios to test. There are 100 possible combinations
-but many are redundant. If the first property is intended to be a finite positive number but in a particular scenario it 
-is negative, the combined scenario will be invalid for any value of the second property. In particular, if the code under 
-test follows the same execution path as soon as it realises the first property is invalid, enumerating over the possible
-values for the second property is wasteful (and can be prohibitively so for complex scenarios). When the `shortcircuit` flag is set, a single value (specifically, the first option) 
-for the second property is arbitrarily used in the test block. The string `"USE ONLY FIRST BRANCH ON THIS TREE"` is 
-added to the `describe` block title to indicate that pruning has occurred.
+For example, consider an object with two properties, each with a set of 10 scenarios to test. There are 100 possible combinations but many are redundant. If the first property is intended to be a finite positive number but in a particular scenario it is negative, the combined scenario will be invalid for any value of the second property. In particular, if the code under test follows the same execution path as soon as it realizes the first property is invalid, enumerating over the possible values for the second property is wasteful (and can be prohibitively so for complex scenarios). When the `shortcircuit` flag is set, a single value (specifically, the first option) for the second property is used in the test block. The string `"USE ONLY FIRST BRANCH ON THIS TREE"` is added to the `describe` block title to indicate that pruning has occurred.
 
-Since this is the typical behaviour of the code under test (especially if it was written defensively), the `shortcircuit`
-flag is set by default. To achieve full enumeration, it needs to be explicitly disabled.
+Since this is the typical behaviour of the code under test (especially if it was written defensively), the `shortcircuit` flag is set by default. To achieve full enumeration, it needs to be explicitly disabled.
 ```javascript
-Enumerator.enumerate(myProp, validTestsFn, invalidTestsFn, false /* don't prune invalid branches */); 
+Enumerator.enumerate(myProp, validTestsFn, invalidTestsFn, false /* don't prune invalid branches */);
 ```
 ### Available scenarios
 
@@ -156,7 +217,7 @@ Enumerator.enumerate(Enumerator.scenario.property('myObject', () => baseObj, sce
 
 ##### `scenario.mutexProperties`
 A function that creates two properties on an object based on the specified scenarios, and produces an array of scenarios
-that are valid when the properties are mutually exclusive (ie. the scenario is invalid if either property is invalid 
+that are valid when the properties are mutually exclusive (ie. the scenario is invalid if either property is invalid
 or both are defined )
 ```javascript
 let baseObj;
@@ -185,34 +246,27 @@ Enumerator.enumerate(scenario, validTestsFn, invalidTestFn);
 
 ##### `custom.dependent`
 
-A simple container for a name and a set of scenarios. Whenever a `scenario` contains a `dependent`, 
-all possible scenarios for the dependent property (and all possible combinations between multiple dependent properties)
-are included in the original `scenario`. 
+A simple container for a name and a set of scenarios. Whenever a `scenario` contains a `dependent`, all possible scenarios for the dependent property (and all possible combinations between multiple dependent properties) are included in the original `scenario`.
 
-`dependent` objects offer a way to produce generic scenarios that can be instantiated by the user. 
-Refer to `scenario.nonEmptyArray` or `scenario.object` for an example usage.
+`dependent` objects offer a way to produce generic scenarios that can be instantiated by the user. Refer to `scenario.nonEmptyArray` or `scenario.object` for an example usage.
 
 ##### `custom.scenario`
 
 This object can be used to create a custom scenario. It is instantiated with the parameters:
+
 1. `desc`: a description of the scenario (the value to be written in the `describe` block title)
-1. `dependents`: any children or other dependent properties to be included in the scenario. Note that calling 
-`enumerate` on a scenario will create a test block for all possible combinations of properties,
-which may be overwhelming for a scenario with a large number of dependents and sub-dependents
-1. `value`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent
-(in order) and produces the combined property value (see the examples below).
-1. `valid`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent
-(in order) and produces the combined validity (see the examples below).
-1. `set`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent
-(in order) and produces *a function that creates* the scenario under test (see the examples below).
+1. `dependents`: any children or other dependent properties to be included in the scenario. Note that calling `enumerate` on a scenario will create a test block for all possible combinations of properties, which may be overwhelming for a scenario with a large number of dependents and sub-dependents
+1. `value`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent (in order) and produces the combined property value (see the examples below).
+1. `valid`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent (in order) and produces the combined validity (see the examples below).
+1. `set`: a curried function of degree `dependents.length` that accepts possible scenarios for each dependent (in order) and produces *a function that creates* the scenario under test (see the examples below).
 
 ```javascript
 // The implementation of `scenario.mutexProperties`
-const MutexProperties = (baseObjFn, propertyA, propertyB) => 
+const MutexProperties = (baseObjFn, propertyA, propertyB) =>
   new Scenario(
-      // the name of the scenario. Set it to null since we don't want the description of this scenario to appear in any describe block 
+      // the name of the scenario. Set it to null since we don't want the description of this scenario to appear in any describe block
       // (the dependent properties will be enumerated and described individually - we are simply modifying the validity conditions)
-      null, 
+      null,
       // the dependent properties
       [ propertyA, propertyB ],
       // the mutex doesn't require a value since it is not read by other scenarios
@@ -257,7 +311,7 @@ const NonEmptyArray = (elementScenarios) => [
         () => () => undefined
     ),
     new Scenario(
-        // we are testing how the array behaves if it has two elements. 
+        // we are testing how the array behaves if it has two elements.
         // As above, this will be written in the describe block for this scenario
         'has two elements',
         // to keep this scenario generic, we allow the user to specify the scenarios for the array element,
@@ -284,6 +338,7 @@ const NonEmptyArray = (elementScenarios) => [
 A convenience object for scenarios that do not have any `dependent` values and do not require a set function.
 
 It is instantiated with:
+
 1. `desc`: a description of the scenario (the value to be written in the `describe` block title)
 1. `value`: the value of the scenario
 1. `valid`: whether or not the scenario is valid
@@ -291,6 +346,7 @@ It is instantiated with:
 ```javascript
 const FinitePositiveNumber = [
     new SimpleScenario('is a string', 'Arbitrary string', false),
+    new SimpleScenario('is a string of a number', '1', false),
     new SimpleScenario('is a negative number', -1, false),
     new SimpleScenario('is zero', 0, false),
     new SimpleScenario('is one', 1, true),
